@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="icono.png">
+    <title>Cubic World</title>
+    </style>
+</head>
+<body style="background-image: url(fondo.jpg); background-size: cover;">
+    <section class="w-full bg-yellow-500 p-3" id="container-title">
+        <h1 class="text-center text-2xl font-bold">Cubic World Cafetería</h1>
+    </section>
+    <section class="w-full flex justify-between flex-wrap" id="container-main">
+        <!--CARRITO DE PRODUCTOS-->
+        <section class="w-3/12 bg-gray-900 opacity-90 border-r-2">
+            <h2 class="text-center text-white text-2xl">Mi lista</h2>
+            <table class="flex justify-center">
+                <tr>
+                    <th class="text-white px-6 py-2">Producto</th>
+                    <th class="text-white px-6 py-2">Cantidad</th>
+                    <th class="text-white px-6 py-2">Total</th>
+                </tr>
+                <tr v-for="(item, i) in misProductos" :key="i">
+                    <th class="text-white px-6 py-2">{{item.nombreCarrito}}</th>
+                    <th class="text-white px-6 py-2">{{item.cantidadCarrito}}</th>
+                    <th class="text-white px-6 py-2">{{item.totalCarrito}}</th>
+                </tr>
+            </table>
+        </section>
+        <!--LISTA DE PRODUCTOS-->
+        <section class="w-6/12 bg-gray-900 opacity-90 border-r-2">
+            <h2 class="text-center text-white text-2xl">Lista de productos</h2>
+            <table class="flex justify-center">
+                <tr>
+                    <th class="text-white px-6 py-2">Producto</th>
+                    <th class="text-white px-6 py-2">Ingredientes</th>
+                    <th class="text-white px-6 py-2">Tamaño</th>
+                    <th class="text-white px-6 py-2">Precio</th>
+                    <th class="text-white px-6 py-2">Vigencia</th>
+                </tr>
+                <tr v-for="(item, i) in productos" :key="i" :class="{'bg-red-500': item.vigencia=='NO'}">
+                    <th class="text-white px-6 py-2">{{item.nombre}}</th>
+                    <th class="text-white px-6 py-2">{{item.ingrediente}}</th>
+                    <th class="text-white px-6 py-2">{{item.tam}}</th>
+                    <th class="text-white px-6 py-2">{{item.precio}}</th>
+                    <th class="text-white px-6 py-2">{{item.vigencia}}</th>
+                </tr>
+            </table>
+        </section>
+        <!--AGREGAR PRODUCTO-->
+        <section class="w-3/12 max-h-1/2 bg-gray-900 opacity-90 flex flex-wrap justify-evenly items-center">
+            <h3 class="text-2xl text-white">Agregar producto</h3>
+            <input type="text" class="w-4/5 m-2 p-1" placeholder="Ingresa el nombre" v-model="nombreNuevo">
+            <input type="text" class="w-4/5 m-2 p-1" placeholder="Ingredientes separados por coma" v-model="ingredienteNuevo">
+            <input type="text" class="w-2/5 m-2 p-1" placeholder="Tamaño" v-model="tamNuevo">
+            <input type="number" class="w-2/5 m-2 p-1" placeholder="Precio" v-model.number="precioNuevo">
+            <section class="text-white">
+                <input type="radio" class="mx-4" v-model="vigenciaNuevo" value="SI"> Vigente
+                <input type="radio" class="mx-4" v-model="vigenciaNuevo" value="NO"> No vigente
+            </section>
+            <input type="button" class="w-3/5 m-2 p-1 bg-green-500 cursor-pointer hover:bg-green-300" value="Agregar" @click="agregarProducto()">
+        </section>
+        <!--FILTRAR POR NOMBRE-->
+        <section class="w-6/12 bg-gray-900 opacity-90 border-r-2">
+            <h2 class="text-white text-center text-2xl">Filtrar por texto</h2>
+            <input type="text" class="w-2/5 mx-48 my-2 p-1" placeholder="Ingresa el nombre del producto" v-model="filtrarNombre">
+            <table class="flex justify-center">
+                <tr>
+                    <th class="text-white px-6 py-1">Producto</th>
+                    <th class="text-white px-6 py-1">Precio</th>
+                    <th class="text-white px-6 py-1">Cantidad</th>
+                </tr>
+                <tr v-for="prod in productosPorNombre" :class="{'bg-red-500': prod.vigencia=='NO'}">
+                    <th class="text-white px-6 py-1">{{prod.nombre}}</th>
+                    <th class="text-white px-6 py-1">{{prod.precio}}</th>
+                    <th class="px-6 py-1"><input type="number" min="1" v-model.number="cantidad" placeholder="Cantidad" :disabled="prod.vigencia=='NO'"></th>
+                    <th class="text-white px-6 py-1"><button class="bg-green-500 p-1 hover:bg-green-300" :disabled="prod.vigencia=='NO'" @click="comprar(prod)">➕</button></th>
+                </tr>
+            </table>
+        </section>
+        <!--FILTRAR POR PRECIOS-->
+        <section class="w-6/12 bg-gray-900 opacity-90">
+            <h2 class="text-white text-center text-2xl">Filtrar por precio</h2>
+            <section class="flex justify-center">
+                <input type="range" class="w-2/5 my-3" min="0" v-model="rangoPrecio">
+                <h5 class="bg-white w-20 text-center mx-1">{{rangoPrecio}}</h5>
+            </section>
+            <table class="flex justify-center">
+                <tr>
+                    <th class="text-white px-6 py-2">Producto</th>
+                    <th class="text-white px-6 py-2">Ingredientes</th>
+                    <th class="text-white px-6 py-2">Tamaño</th>
+                    <th class="text-white px-6 py-2">Precio</th>
+                    <th class="text-white px-6 py-2">Vigencia</th>
+                </tr>
+                <tr v-for="prod in productosPorPrecio" :class="{'bg-red-500': prod.vigencia=='NO'}">
+                    <th class="text-white px-6 py-2">{{prod.nombre}}</th>
+                    <th class="text-white px-6 py-2">{{prod.ingrediente}}</th>
+                    <th class="text-white px-6 py-2">{{prod.tam}}</th>
+                    <th class="text-white px-6 py-2">{{prod.precio}}</th>
+                    <th class="text-white px-6 py-2">{{prod.vigencia}}</th>
+                </tr>
+            </table>
+        </section>
+    </section>
+    <script src="vue.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
